@@ -13,6 +13,7 @@ class ConnectionControlInterface:
 
     def add(self,
             conn_type: str,
+            import_config: str = None,
             options: Optional[ConnectionOptions] = None,
             ifname: str = "*",
             name: str = None,
@@ -54,19 +55,27 @@ class ConnectionControl(ConnectionControlInterface):
 
     def add(self,
             conn_type: str,
+            import_config: str = None,
             options: Optional[ConnectionOptions] = None,
             ifname: str = "*",
             name: str = None,
             autoconnect: bool = None) -> None:
-        cmd = ['connection', 'add', 'type', conn_type, 'ifname', ifname]
-        if autoconnect is not None:
-            cmd += ['autoconnect', 'yes' if autoconnect else 'no']
-        if not name is None:
-            cmd += ['con-name', name]
-        options = {} if options is None else options
-        for k, v in options.items():
-            cmd += [k, v]
+        
+        action = "import" if import_config else "add"
+        cmd = ['connection', action, 'type', conn_type]
+        if not import_config:
+            cmd+=['ifname', ifname]
+            if autoconnect is not None:
+                cmd += ['autoconnect', 'yes' if autoconnect else 'no']
+            if not name is None:
+                cmd += ['con-name', name]
+            options = {} if options is None else options
+            for k, v in options.items():
+                cmd += [k, v]
+        else:
+            cmd+=["file",import_config]
         self._syscmd.nmcli(cmd)
+
 
     def modify(self, name: str, options: ConnectionOptions) -> None:
         cmd = ['connection', 'modify', name]
