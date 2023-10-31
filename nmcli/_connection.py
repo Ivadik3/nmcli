@@ -61,6 +61,8 @@ class ConnectionControl(ConnectionControlInterface):
             name: str = None,
             autoconnect: bool = None) -> None:
         
+        #in conn type you have to specify vpn type (e.g wireguard,openvpn)
+        #in import you have to specify vpn config
         action = "import" if import_config else "add"
         cmd = ['connection', action, 'type', conn_type]
         if not import_config:
